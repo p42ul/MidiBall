@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin editor.
+	This file contains the basic framework code for a JUCE plugin editor.
 
   ==============================================================================
 */
@@ -14,20 +14,26 @@
 //==============================================================================
 /**
 */
-class MidiBallAudioProcessorEditor  : public juce::AudioProcessorEditor
+class MidiBallAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
-    MidiBallAudioProcessorEditor (MidiBallAudioProcessor&);
-    ~MidiBallAudioProcessorEditor() override;
+	MidiBallAudioProcessorEditor(MidiBallAudioProcessor&);
+	~MidiBallAudioProcessorEditor() override;
 
-    //==============================================================================
-    void paint (juce::Graphics&) override;
-    void resized() override;
+	//==============================================================================
+	void paint(juce::Graphics&) override;
+	void resized() override;
+	void timerCallback() override;
+
+
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    MidiBallAudioProcessor& audioProcessor;
+	// This reference is provided as a quick way for your editor to
+	// access the processor object that created it.
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiBallAudioProcessorEditor)
+	void sendMidi();
+	MidiBallAudioProcessor& audioProcessor;
+	std::unique_ptr<juce::MidiOutput> midiOutput;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiBallAudioProcessorEditor)
 };
