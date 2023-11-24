@@ -14,12 +14,13 @@
 //==============================================================================
 /**
 */
-class MidiBallAudioProcessor : public juce::AudioProcessor
+class MidiBallAudioProcessor : public juce::AudioProcessor, private juce::Timer
 {
 public:
 	//==============================================================================
 	MidiBallAudioProcessor();
 	~MidiBallAudioProcessor() override;
+	void timerCallback() override;
 
 	//==============================================================================
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -53,9 +54,14 @@ public:
 	//==============================================================================
 	void getStateInformation(juce::MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
+	void setMidiOutput(int id);
+	
 
 private:
 	//==============================================================================
+	void sendMidi();
 	std::vector<Ball> balls;
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiBallAudioProcessor)
+	std::unique_ptr<juce::MidiOutput> midiOutput;
+	
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiBallAudioProcessor);
 };

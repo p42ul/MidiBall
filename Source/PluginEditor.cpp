@@ -9,6 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+using namespace juce;
 //==============================================================================
 MidiBallAudioProcessorEditor::MidiBallAudioProcessorEditor(MidiBallAudioProcessor& p)
 	: AudioProcessorEditor(&p), audioProcessor(p)
@@ -16,41 +17,56 @@ MidiBallAudioProcessorEditor::MidiBallAudioProcessorEditor(MidiBallAudioProcesso
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
 	setSize(400, 300);
-	midiOutput = juce::MidiOutput::openDevice(0);
-	startTimerHz(1);
+	addAndMakeVisible(midiDropdown);
+	midiDropdown.changeWidthToFitText(24);
+	midiDropdown.setTopLeftPosition(20, 20);
+	midiDropdown.setTriggeredOnMouseDown(true);
+	midiDropdown.setAlwaysOnTop(true);
+	midiDropdown.onClick = [this] { showMenu(); };
 }
 
 MidiBallAudioProcessorEditor::~MidiBallAudioProcessorEditor()
 {
 }
 
+void MidiBallAudioProcessorEditor::showMenu()
+{
+	Array<MidiDeviceInfo> midiDevices = MidiOutput::getAvailableDevices();
+	PopupMenu m;
+	
+	int i = 1;
+	m.addItem(i++, "None (disable)", true, outputId == i);
+	for (MidiDeviceInfo device : midiDevices)
+	{
+		m.addItem(i++, device.name, true, outputId == i);
+	}
+
+	m.showMenuAsync(PopupMenu::Options().withTargetComponent(midiDropdown),
+		ModalCallbackFunction::forComponent(menuItemChosenCallback, this));
+}
+
+void MidiBallAudioProcessorEditor::menuItemChosenCallback(int result, MidiBallAudioProcessorEditor* editor)
+{
+	if (result != 0 && editor != nullptr)
+	{
+		editor->audioProcessor.setMidiOutput(result - 2);
+		editor->outputId = result;
+	}
+}
+
 //==============================================================================
-void MidiBallAudioProcessorEditor::paint(juce::Graphics& g)
+void MidiBallAudioProcessorEditor::paint(Graphics& g)
 {
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
-	g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+	g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-	g.setColour(juce::Colours::white);
+	g.setColour(Colours::white);
 	g.setFont(15.0f);
-	g.drawFittedText("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+	g.drawFittedText("Hello World!", getLocalBounds(), Justification::centred, 1);
 }
 
 void MidiBallAudioProcessorEditor::resized()
 {
 	// This is generally where you'll want to lay out the positions of any
 	// subcomponents in your editor..
-}
-
-void MidiBallAudioProcessorEditor::timerCallback()
-{
-	sendMidi();
-}
-
-void MidiBallAudioProcessorEditor::sendMidi()
-{
-	juce::MidiMessage message = juce::MidiMessage::noteOn(1, 60, 1.0f);
-
-	// Send the MIDI message
-	if (midiOutput)
-		midiOutput->sendMessageNow(message);
 }

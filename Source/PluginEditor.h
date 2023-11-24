@@ -11,19 +11,22 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
+using namespace juce;
 //==============================================================================
 /**
 */
-class MidiBallAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::Timer
+class MidiBallAudioProcessorEditor : public AudioProcessorEditor
 {
 public:
 	MidiBallAudioProcessorEditor(MidiBallAudioProcessor&);
 	~MidiBallAudioProcessorEditor() override;
 
+
+
 	//==============================================================================
-	void paint(juce::Graphics&) override;
+	void paint(Graphics&) override;
 	void resized() override;
-	void timerCallback() override;
+
 
 
 
@@ -31,9 +34,13 @@ private:
 	// This reference is provided as a quick way for your editor to
 	// access the processor object that created it.
 
-	void sendMidi();
+
 	MidiBallAudioProcessor& audioProcessor;
-	std::unique_ptr<juce::MidiOutput> midiOutput;
+	TextButton midiDropdown{ "MIDI Devices" };
+	void showMenu();
+	int outputId = 1;
+
+	static void menuItemChosenCallback(int result, MidiBallAudioProcessorEditor* editor);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiBallAudioProcessorEditor)
 };
