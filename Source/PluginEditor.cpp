@@ -8,24 +8,29 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Ball.h"
 
 using namespace juce;
 //==============================================================================
 MidiBallAudioProcessorEditor::MidiBallAudioProcessorEditor(MidiBallAudioProcessor& p)
 	: AudioProcessorEditor(&p), audioProcessor(p)
 {
-	// Make sure that before the constructor has finished, you've set the
-	// editor's size to whatever you need it to be.
-	setSize(400, 300);
+	setSize(defaultWidth, defaultHeight);
 	if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone)
 	{
 		addAndMakeVisible(midiDropdown);
 		midiDropdown.changeWidthToFitText(24);
-		midiDropdown.setTopLeftPosition(20, 20);
+		midiDropdown.setTopLeftPosition(defaultWidth - 120, 20);
 		midiDropdown.setTriggeredOnMouseDown(true);
 		midiDropdown.setAlwaysOnTop(true);
 		midiDropdown.onClick = [this] { showMenu(); };
 	}
+	addAndMakeVisible(addBallButton);
+	addBallButton.setAlwaysOnTop(true);
+	addBallButton.changeWidthToFitText(24);
+	addBallButton.setTopLeftPosition(20, 20);
+	addBallButton.onClick = [this] { audioProcessor.addBall(); };
+	startTimerHz(60);
 }
 
 MidiBallAudioProcessorEditor::~MidiBallAudioProcessorEditor()
@@ -36,7 +41,7 @@ void MidiBallAudioProcessorEditor::showMenu()
 {
 	Array<MidiDeviceInfo> midiDevices = MidiOutput::getAvailableDevices();
 	PopupMenu m;
-	
+
 	int i = 1;
 	m.addItem(i++, "None (disable)", true, outputId == i);
 	for (MidiDeviceInfo device : midiDevices)
@@ -63,13 +68,21 @@ void MidiBallAudioProcessorEditor::paint(Graphics& g)
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
 	g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-	g.setColour(Colours::white);
-	g.setFont(15.0f);
-	g.drawFittedText("Hello World!", getLocalBounds(), Justification::centred, 1);
+	for (const Ball& ball : audioProcessor.balls)
+	{
+		g.setColour(ball.color);
+		g.fillEllipse(ball.x, ball.y, ball.radius, ball.radius);
+	}
 }
 
 void MidiBallAudioProcessorEditor::resized()
 {
 	// This is generally where you'll want to lay out the positions of any
 	// subcomponents in your editor..
+}
+
+void MidiBallAudioProcessorEditor::timerCallback()
+{
+	// Dirty hack to redraw the editor every frame
+	repaint();
 }

@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Ball.h"
 
 //==============================================================================
 MidiBallAudioProcessor::MidiBallAudioProcessor()
@@ -22,7 +23,9 @@ MidiBallAudioProcessor::MidiBallAudioProcessor()
 	)
 #endif
 {
-	startTimerHz(1);
+	areaWidth = defaultWidth;
+	areaHeight = defaultHeight;
+	startTimerHz(60);
 }
 
 MidiBallAudioProcessor::~MidiBallAudioProcessor()
@@ -31,7 +34,9 @@ MidiBallAudioProcessor::~MidiBallAudioProcessor()
 
 void MidiBallAudioProcessor::timerCallback()
 {
-	MidiMessage message = juce::MidiMessage::noteOn(1, 60, 1.0f);
+	updateBalls();
+
+	/*MidiMessage message = juce::MidiMessage::noteOn(1, 60, 1.0f);
 	if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone)
 	{
 		sendMidi(message);
@@ -39,7 +44,7 @@ void MidiBallAudioProcessor::timerCallback()
 	else
 	{
 		midiQueue.push(message);
-	}
+	}*/
 
 }
 
@@ -108,8 +113,6 @@ void MidiBallAudioProcessor::changeProgramName(int index, const juce::String& ne
 //==============================================================================
 void MidiBallAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	// Use this method as the place to do any pre-playback
-	// initialisation that you need..
 }
 
 void MidiBallAudioProcessor::releaseResources()
@@ -187,6 +190,69 @@ void MidiBallAudioProcessor::setMidiOutput(int id)
 		standaloneMidiOutput = nullptr;
 	else
 		standaloneMidiOutput = MidiOutput::openDevice(id);
+}
+
+void MidiBallAudioProcessor::addBall()
+{
+	Random random;
+	Ball ball;
+	ball.x = areaWidth / 2;
+	ball.y = areaHeight / 2;
+	ball.radius = (random.nextFloat() * 50.0f) + 5.0f;
+	ball.note = random.nextInt(Range(32, 127));
+	ball.dx = (random.nextFloat() - 0.5f) * 4.0f;
+	ball.dy = (random.nextFloat() - 0.5f) * 4.0f;
+	ball.color = Colour::Colour(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+	balls.push_back(ball);
+}
+
+void MidiBallAudioProcessor::updateBalls()
+{
+	for (Ball& ball : balls)
+	{
+		// Bounce against edge of window
+		if (ball.x < 0)
+		{
+			ball.dx = std::abs(ball.dx);
+			bounce(ball);
+		}
+
+		if (ball.x > areaWidth - ball.radius)
+		{
+			ball.dx = -std::abs(ball.dx);
+			bounce(ball);
+		}
+
+		if (ball.y < 0)
+		{
+			ball.dy = std::abs(ball.dy);
+			bounce(ball);
+		}
+
+		if (ball.y > areaHeight - ball.radius)
+		{
+			ball.dy = -std::abs(ball.dy);
+			bounce(ball);
+		}
+
+
+		// Apply velocity
+		ball.x += ball.dx;
+		ball.y += ball.dy;
+	}
+}
+
+void MidiBallAudioProcessor::bounce(Ball& ball)
+{
+	MidiMessage message = juce::MidiMessage::noteOn(1, ball.note, 1.0f);
+	if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone)
+	{
+		sendMidi(message);
+	}
+	else
+	{
+		midiQueue.push(message);
+	}
 }
 
 void MidiBallAudioProcessor::sendMidi(MidiMessage message)

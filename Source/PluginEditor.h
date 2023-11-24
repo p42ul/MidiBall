@@ -15,7 +15,7 @@ using namespace juce;
 //==============================================================================
 /**
 */
-class MidiBallAudioProcessorEditor : public AudioProcessorEditor
+class MidiBallAudioProcessorEditor : public AudioProcessorEditor, private Timer
 {
 public:
 	MidiBallAudioProcessorEditor(MidiBallAudioProcessor&);
@@ -26,6 +26,7 @@ public:
 	//==============================================================================
 	void paint(Graphics&) override;
 	void resized() override;
+	void timerCallback() override;
 
 
 
@@ -37,6 +38,7 @@ private:
 
 	MidiBallAudioProcessor& audioProcessor;
 	TextButton midiDropdown{ "MIDI Devices" };
+	TextButton addBallButton{ "Add Ball" };
 	void showMenu();
 	int outputId = 1;
 

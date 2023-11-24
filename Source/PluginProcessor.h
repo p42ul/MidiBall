@@ -55,14 +55,26 @@ public:
 	void getStateInformation(juce::MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
 	void setMidiOutput(int id);
-	
+
+	void addBall();
+	void removeBall();
+	void updateBalls();
+	void bounce(Ball& ball);
+	std::vector<Ball> balls;
+
+	int areaWidth;
+	int areaHeight;
+
 
 private:
 	//==============================================================================
 	void sendMidi(juce::MidiMessage);
-	std::vector<Ball> balls;
+
+
+
 	std::unique_ptr<juce::MidiOutput> standaloneMidiOutput = nullptr;
 	std::queue<juce::MidiMessage> midiQueue;
-	
+
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiBallAudioProcessor);
 };
