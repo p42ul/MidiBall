@@ -59,9 +59,10 @@ public:
 
 private:
 	//==============================================================================
-	void sendMidi();
+	void sendMidi(juce::MidiMessage);
 	std::vector<Ball> balls;
-	std::unique_ptr<juce::MidiOutput> midiOutput;
+	std::unique_ptr<juce::MidiOutput> standaloneMidiOutput = nullptr;
+	std::queue<juce::MidiMessage> midiQueue;
 	
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiBallAudioProcessor);
 };

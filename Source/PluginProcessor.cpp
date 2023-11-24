@@ -31,7 +31,16 @@ MidiBallAudioProcessor::~MidiBallAudioProcessor()
 
 void MidiBallAudioProcessor::timerCallback()
 {
-	sendMidi();
+	MidiMessage message = juce::MidiMessage::noteOn(1, 60, 1.0f);
+	if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone)
+	{
+		sendMidi(message);
+	}
+	else
+	{
+		midiQueue.push(message);
+	}
+
 }
 
 //==============================================================================
@@ -137,8 +146,14 @@ bool MidiBallAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) 
 
 void MidiBallAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+	// Because this is a MIDI device, it should have no audio channels.
 	jassert(buffer.getNumChannels() == 0);
-	
+
+	while (!midiQueue.empty())
+	{
+		midiMessages.addEvent(midiQueue.front(), 0);
+		midiQueue.pop();
+	}
 }
 
 //==============================================================================
@@ -169,19 +184,17 @@ void MidiBallAudioProcessor::setStateInformation(const void* data, int sizeInByt
 void MidiBallAudioProcessor::setMidiOutput(int id)
 {
 	if (id == -1)
-		midiOutput = nullptr;
+		standaloneMidiOutput = nullptr;
 	else
-		midiOutput = MidiOutput::openDevice(id);
+		standaloneMidiOutput = MidiOutput::openDevice(id);
 }
 
-void MidiBallAudioProcessor::sendMidi()
+void MidiBallAudioProcessor::sendMidi(MidiMessage message)
 {
-	juce::MidiMessage message = juce::MidiMessage::noteOn(1, 60, 1.0f);
-
-	// Send the MIDI message
-	if (midiOutput)
-		midiOutput->sendMessageNow(message);
+	if (standaloneMidiOutput)
+		standaloneMidiOutput->sendMessageNow(message);
 }
+
 
 //==============================================================================
 // This creates new instances of the plugin..

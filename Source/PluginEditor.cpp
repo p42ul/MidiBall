@@ -17,12 +17,15 @@ MidiBallAudioProcessorEditor::MidiBallAudioProcessorEditor(MidiBallAudioProcesso
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
 	setSize(400, 300);
-	addAndMakeVisible(midiDropdown);
-	midiDropdown.changeWidthToFitText(24);
-	midiDropdown.setTopLeftPosition(20, 20);
-	midiDropdown.setTriggeredOnMouseDown(true);
-	midiDropdown.setAlwaysOnTop(true);
-	midiDropdown.onClick = [this] { showMenu(); };
+	if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone)
+	{
+		addAndMakeVisible(midiDropdown);
+		midiDropdown.changeWidthToFitText(24);
+		midiDropdown.setTopLeftPosition(20, 20);
+		midiDropdown.setTriggeredOnMouseDown(true);
+		midiDropdown.setAlwaysOnTop(true);
+		midiDropdown.onClick = [this] { showMenu(); };
+	}
 }
 
 MidiBallAudioProcessorEditor::~MidiBallAudioProcessorEditor()
