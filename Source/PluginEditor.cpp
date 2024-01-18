@@ -30,6 +30,13 @@ MidiBallAudioProcessorEditor::MidiBallAudioProcessorEditor(MidiBallAudioProcesso
 	addBallButton.changeWidthToFitText(24);
 	addBallButton.setTopLeftPosition(20, 20);
 	addBallButton.onClick = [this] { audioProcessor.addBall(); };
+
+	addAndMakeVisible(removeBallButton);
+	removeBallButton.setAlwaysOnTop(true);
+	removeBallButton.changeWidthToFitText(24);
+	removeBallButton.setTopLeftPosition(20, 50);
+	removeBallButton.onClick = [this] { audioProcessor.removeBall(); };
+
 	startTimerHz(60);
 }
 

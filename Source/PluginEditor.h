@@ -39,6 +39,7 @@ private:
 	MidiBallAudioProcessor& audioProcessor;
 	TextButton midiDropdown{ "MIDI Devices" };
 	TextButton addBallButton{ "Add Ball" };
+	TextButton removeBallButton{ "Remove Ball" };
 	void showMenu();
 	int outputId = 1;
 

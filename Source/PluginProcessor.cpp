@@ -35,17 +35,6 @@ MidiBallAudioProcessor::~MidiBallAudioProcessor()
 void MidiBallAudioProcessor::timerCallback()
 {
 	updateBalls();
-
-	/*MidiMessage message = juce::MidiMessage::noteOn(1, 60, 1.0f);
-	if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone)
-	{
-		sendMidi(message);
-	}
-	else
-	{
-		midiQueue.push(message);
-	}*/
-
 }
 
 //==============================================================================
@@ -204,6 +193,11 @@ void MidiBallAudioProcessor::addBall()
 	ball.dy = (random.nextFloat() - 0.5f) * 4.0f;
 	ball.color = Colour::Colour(random.nextInt(256), random.nextInt(256), random.nextInt(256));
 	balls.push_back(ball);
+}
+
+void MidiBallAudioProcessor::removeBall()
+{
+	balls.pop_back();
 }
 
 void MidiBallAudioProcessor::updateBalls()
