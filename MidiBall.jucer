@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="lgkFTX" name="MidiBall" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginVST3Category="Generator"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginVST3Category="Fx,Generator"
               pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut"
-              pluginAUMainType="'augn'" displaySplashScreen="1">
+              pluginAUMainType="'augn'" displaySplashScreen="1" companyWebsite="p42ul.com"
+              companyName="BEEPY TOOLS">
   <MAINGROUP id="gyfOLA" name="MidiBall">
     <GROUP id="{7EA9CE04-11AD-C65F-6A8C-AA3415738CDB}" name="Source">
       <FILE id="OO8HBq" name="Ball.h" compile="0" resource="0" file="Source/Ball.h"/>
