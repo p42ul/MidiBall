@@ -238,14 +238,18 @@ void MidiBallAudioProcessor::updateBalls()
 
 void MidiBallAudioProcessor::bounce(Ball& ball)
 {
-	MidiMessage message = juce::MidiMessage::noteOn(1, ball.note, 1.0f);
+	MidiMessage noteOnMessage = juce::MidiMessage::noteOn(1, ball.note, 1.0f);
+	MidiMessage noteOffMessage = juce::MidiMessage::noteOff(1, ball.note, 1.0f);
+
 	if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone)
 	{
-		sendMidi(message);
+		sendMidi(noteOnMessage);
+		sendMidi(noteOffMessage);
 	}
 	else
 	{
-		midiQueue.push(message);
+		midiQueue.push(noteOnMessage);
+		midiQueue.push(noteOffMessage);
 	}
 }
 
